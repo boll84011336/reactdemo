@@ -1,63 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import TaskList from "./TaskList";
+import AddTask from "./AddTask";
+import "./App.css";
+import styled from "styled-components";
+import React, { useState } from 'react';
+import data from "./data.json";
 
-const AddInput = function (props) {
-  const [value, setValue] = useState("");
-  const { f, setf } = props;
-  return (
-    <>
-      <input type="text" onChange={(e) => setValue(e.target.value)} />
-      <input type="button" value="新增菜單" onClick={() => setf([...f, value])} />
-    </>
-  )
-}
+const Wrapper = styled.div`
+  background-color: #3c5d95;
+  height: 100vh;
+  padding-top: 70px;
+`;
 
-const Restaurant = function () {
-  const [foods, setFoods] = useState(["沙拉", "漢堡"]);
-  return (
-    <>
-      <h1>貓貓西餐廳</h1>
-      <h2>菜單</h2>
-      <AddInput f={foods} setf={setFoods} />
-      <ul>
-        {
-          foods.map((food, index) => {
-            return <li key={index}>{food}</li>
-          })
-        }
+const Title = styled.h1`
+  margin: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: #ffc236;
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+`;
 
-      </ul>
-    </>
-  )
-}
-const CafeShop = function () {
-  const [foods, setFoods] = useState(["卡布奇諾", "紅茶"])
-  return (
-    <>
-      <h1>溫馨狗咖啡</h1>
-      <h2>菜單</h2>
-      <AddInput f={foods} setf={setFoods} />
-      <ul>
-        {
-          foods.map((food, i) => {
-            return <li key={i}>{food}</li>
-          })
-
-        }
-      </ul>
-    </>
-  )
-}
 
 function App() {
+  const [todoList, setTodoList] = useState(data);
+
+  // add todo method
+  const handleAddTodo = (newTask) => {
+    const newTodo = {
+      id: todoList.length + 1,
+      task: newTask,
+      complete: false
+    };
+    setTodoList([...todoList, newTodo]);
+  };
+
+
+  const handleToggleTodo = (id) => {
+    let mapped = todoList.map(task => {
+      // return點的id跟傳進來的id 是否一致 ? 相同的改變complete, 不同的complete不變
+      return task.id === Number(id) ? { ...task, complete: !task.complete } : { ...task };
+    })
+    // 將改變過後的state set回去
+    setTodoList(mapped);
+  }
+
+  // 接收點擊到的id
+  const handleDeleteTodo = (id) => {
+    let filtered = todoList.filter(task => {
+      return Number(id) !== task.id;
+    });
+    setTodoList(filtered);
+  }
   return (
-    <>
-      <Restaurant />
-      <CafeShop />
-    </>
-  )
+    <Wrapper>
+      <Title>Todolist</Title>
+      <AddTask onAdd={handleAddTodo} />
+      <TaskList todoList={todoList} handleToggle={handleToggleTodo} handleDelete={handleDeleteTodo} />
+
+    </Wrapper>
+  );
 }
 
-export default App
+export default App;
